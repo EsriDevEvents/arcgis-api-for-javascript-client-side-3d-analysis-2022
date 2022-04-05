@@ -1,0 +1,1 @@
+import{J as s,L as t}from"./vendor.c28ea743.js";import{q as r}from"./DynamicLayerView3D.2ce8aa15.js";import"./projectExtentUtils.016f801d.js";import"./RefreshableLayerView.17a86100.js";let e=class extends r{constructor(){super(...arguments),this.type="base-dynamic-3d"}};e=s([t("esri.views.3d.layers.BaseDynamicLayerView3D")],e);const n=e;export{n as default};

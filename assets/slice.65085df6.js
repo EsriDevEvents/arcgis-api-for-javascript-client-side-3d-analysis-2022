@@ -1,0 +1,1 @@
+import"./modulepreload-polyfill.b7f2da20.js";import{i as l,o as e,E as o}from"./utils.ed0797c0.js";import{z as a}from"./vendor.c28ea743.js";const t=l(o);let i=null;e("add-widget",()=>{i=new a({view:t}),t.ui.add(i,"top-right")});e("tilt-enabled",()=>{i&&(i.viewModel.tiltEnabled=!0)});

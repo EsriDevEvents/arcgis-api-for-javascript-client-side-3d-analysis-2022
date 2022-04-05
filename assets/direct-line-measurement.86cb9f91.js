@@ -1,0 +1,1 @@
+import"./modulepreload-polyfill.b7f2da20.js";import{i as o,o as e,S as s}from"./utils.ed0797c0.js";import{c as d}from"./vendor.c28ea743.js";const t=o(s);let i;e("add-widget",()=>{i=new d({view:t}),t.ui.add(i,"top-right")});e("set-units",()=>{i.viewModel.unit="feet",i.viewModel.unitOptions=["feet","yards","miles"]});

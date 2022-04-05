@@ -1,0 +1,1063 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+
+    <title>Esri Dev Summit 2022 - ArcGIS JS API: Client-side 3D analysis</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code&display=swap" rel="stylesheet" />
+
+    
+    
+    
+    
+    
+    <script type="module" crossorigin src="https://esridevsummit.github.io/DS2022-Client-Side-3D-Analysis/assets/presentation.25932edd.js"></script>
+    <link rel="modulepreload" href="https://esridevsummit.github.io/DS2022-Client-Side-3D-Analysis/assets/modulepreload-polyfill.b7f2da20.js">
+    <link rel="stylesheet" href="https://esridevsummit.github.io/DS2022-Client-Side-3D-Analysis/assets/presentation.e9528096.css">
+  </head>
+  <body>
+    <div class="reveal">
+      <div class="slides">
+        <section data-background="img/2022/dev-summit/bg-1.png" data-background-size="cover">
+          <h1 style="text-align: left; font-size: 60px">
+            ArcGIS API for JavaScript:<br />
+            Client-Side 3D Analysis
+          </h1>
+          <p style="text-align: left; font-size: 30px; color: var(--r-section-subhead-color)">
+            Hugo Campos & Yannik Messerli
+          </p>
+          <p style="text-align: left; font-size: 30px">
+            Slides:
+            <a href="https://esridevsummit.github.io/DS2022-Client-Side-3D-Analysis/"><code>https://esridevsummit.github.io/DS2022-Client-Side-3D-Analysis/</code></a>
+          </p>
+        </section>
+
+        <section data-background="img/2022/dev-summit/bg-3.png">
+          <h2 id="agenda">Agenda</h2>
+          <ul>
+            <li>
+              Analysis
+              <ul style="font-size: 80%">
+                <li>Direct line measurement</li>
+                <li>Area Measurement</li>
+                <li>Line Of Sight</li>
+                <li>Slice</li>
+                <li>Elevation Profile</li>
+                <li>Shadow Analysis</li>
+              </ul>
+            </li>
+            <li>Filtering &amp; Querying</li>
+          </ul>
+        </section>
+
+        <!--
+          DirectLineMeasurement
+        -->
+        <section
+          class="align-left"
+          data-slideId="direct-line-measurement"
+          data-background="img/2022/dev-summit/bg-3.png"
+        >
+          <h2>DirectLineMeasurement3D widget</h2>
+          <div class="two-columns">
+            <div class="left-column">
+              <div data-fragment-id="add-widget" class="code-snippet play-container">
+                <button class="play"></button>
+                <pre>
+                  <code class="lang-ts" data-trim data-line-numbers>
+                    const widget = new DirectLineMeasurement3D({
+                      view
+                    });
+
+                    view.ui.add(widget, "top-right");
+                  </code>
+                </pre>
+              </div>
+
+              <div
+                data-fragment-id="set-units"
+                class="code-snippet fragment play-container"
+                min-height
+              >
+                <button class="play"></button>
+                <pre>
+                  <code class="lang-ts" data-trim data-line-numbers>
+                    widget.viewModel.unit = "feet";
+                    widget.viewModel.unitOptions = [
+                      "feet",
+                      "yards",
+                      "miles"
+                    ];
+                  </code>
+                </pre>
+              </div>
+            </div>
+            <div class="right-column">
+              <iframe data-src="./src/samples/direct-line-measurement/"></iframe>
+            </div>
+          </div>
+        </section>
+
+        <section
+          class="align-left"
+          data-slideId="direct-line-measurement-analysis"
+          data-background="img/2022/dev-summit/bg-3.png"
+        >
+          <h2>DirectLineMeasurementAnalysis</h2>
+          <div class="two-columns">
+            <div class="left-column">
+              <div data-fragment-id="click-event" class="code-snippet">
+                <button class="play"></button>
+                <pre>
+                  <code class="lang-ts" data-trim data-line-numbers>
+                  view.on("click", async (event) => {
+                    const { results } = await view.hitTest(event);
+
+                    const clickedPoint = results
+                      .find((r) => r.graphic)?.graphic?.geometry;
+
+                    if (!clickedPoint) return;
+
+                    const { x, y, z } = clickedPoint;
+                    showAlert(`Clicked ${[x, y, z]}`);
+                  });
+                  </code>
+                </pre>
+              </div>
+
+              <div data-fragment-id="add-analysis" class="code-snippet fragment">
+                <button class="play"></button>
+                <pre>
+                  <code class="lang-ts" data-trim data-line-numbers>
+                  const palmSpringsPoint = new Point({ x, y });
+
+                  const analysis =
+                    new DirectLineMeasurementAnalysis({
+                      startPoint: clickedPoint,
+                      endPoint: palmSpringsPoint
+                    });
+
+                  view.analyses.add(analysis);
+                  </code>
+                </pre>
+              </div>
+            </div>
+            <div class="right-column">
+              <iframe data-src="./src/samples/direct-line-measurement-analysis/"></iframe>
+            </div>
+          </div>
+        </section>
+
+        <!--
+          AreaMeasurement
+        -->
+        <section
+          class="align-left"
+          data-slideId="area-measurement"
+          data-background="img/2022/dev-summit/bg-3.png"
+        >
+          <h2>AreaMeasurement3D widget</h2>
+          <div class="two-columns">
+            <div class="left-column">
+              <div data-fragment-id="add-widget" class="code-snippet">
+                <button class="play"></button>
+                <pre>
+                  <code class="lang-ts" data-trim data-line-numbers>
+                    const widget = new AreaMeasurement3D({
+                      view
+                    });
+
+                    view.ui.add(widget, "top-right");
+                  </code>
+                </pre>
+              </div>
+
+              <div data-fragment-id="set-units" class="code-snippet fragment">
+                <button class="play"></button>
+                <pre>
+                  <code class="lang-ts" data-trim data-line-numbers>
+                    widget.viewModel.unit = "square-meters";
+                    widget.viewModel.unitOptions = [
+                      "square-meters",
+                      "square-kilometers"
+                    ];
+                  </code>
+                </pre>
+              </div>
+            </div>
+            <div class="right-column">
+              <iframe data-src="./src/samples/area-measurement/"></iframe>
+            </div>
+          </div>
+        </section>
+
+        <section
+          class="align-left"
+          data-slideId="area-measurement-analysis"
+          data-background="img/2022/dev-summit/bg-3.png"
+        >
+          <h2>AreaMeasurementAnalysis</h2>
+          <div class="two-columns">
+            <div class="left-column">
+              <div data-fragment-id="add-analysis" class="code-snippet">
+                <button class="play"></button>
+                <pre>
+                  <code class="lang-ts" data-trim data-line-numbers>
+                    const analysis = new AreaMeasurementAnalysis({
+                      geometry: clickedGraphic.geometry
+                    });
+
+                    view.analyses.add(analysis);
+                  </code>
+                </pre>
+              </div>
+
+              <div data-fragment-id="add-to-widget" class="code-snippet fragment">
+                <button class="play"></button>
+                <pre>
+                  <code class="lang-ts" data-trim >
+                    const widget = new AreaMeasurement3D({
+                      view,
+                      analysis
+                    });
+
+                    view.ui.add(widget, "top-right");
+                  </code>
+                </pre>
+              </div>
+            </div>
+            <div class="right-column">
+              <iframe data-src="./src/samples/area-measurement-analysis/"></iframe>
+            </div>
+          </div>
+        </section>
+
+        <!--
+          LineOfSight
+        -->
+        <section
+          class="align-left"
+          data-slideId="line-of-sight"
+          data-background="img/2022/dev-summit/bg-3.png"
+        >
+          <h2>LineOfSight widget</h2>
+          <div class="two-columns">
+            <div class="left-column">
+              <div data-fragment-id="add-widget" class="code-snippet">
+                <button class="play"></button>
+                <pre>
+                  <code class="lang-ts" data-trim data-line-numbers>
+                    const widget = new LineOfSight({ view });
+
+                    view.ui.add(widget, "top-right");
+                  </code>
+                </pre>
+              </div>
+            </div>
+            <div class="right-column">
+              <iframe data-src="./src/samples/line-of-sight/"></iframe>
+            </div>
+          </div>
+        </section>
+
+        <section
+          class="align-left"
+          data-slideId="line-of-sight-analysis"
+          data-background="img/2022/dev-summit/bg-3.png"
+        >
+          <h2>LineOfSightAnalysis</h2>
+          <div class="two-columns">
+            <div class="left-column r-stack no-margin">
+              <div data-fragment-id="init" class="code-snippet">
+                <pre>
+                  <code class="lang-ts" data-trim data-line-numbers>
+                  const landmarks = [{
+                    name: "Neues Rathaus",
+                    threshold: 5,
+                    position: new Point({ /* ... */ }),
+                  },
+                  // ...
+                  }];
+
+                  const cafes = [{
+                    name: "Cafe 1",
+                    position: new Point({ /* ... */ })
+                  },
+                  // ...
+                  }];
+                  </code>
+                </pre>
+              </div>
+
+              <div class="fragment v-stack">
+                <div data-fragment-id="add-buttons" class="code-snippet">
+                  <button class="play"></button>
+                  <pre>
+                    <code class="lang-ts" data-trim data-line-numbers>
+                      const landmarkTargets = landmarks.map((l) =>
+                        new LineOfSightAnalysisTarget({
+                          position: l.position
+                        })
+                      );
+
+                      button.onclick = () => {
+                        const analysis = new LineOfSightAnalysis({
+                          observer: new LineOfSightAnalysisObserver({
+                            position: cafe.position
+                          }),
+                          targets: landmarkTargets
+                        });
+                        // ...
+                      };
+                    </code>
+                  </pre>
+                </div>
+
+                <div data-fragment-id="add-widget" class="code-snippet fragment">
+                  <button class="play"></button>
+                  <pre>
+                    <code class="lang-ts" data-trim data-line-numbers>
+                      const widget = new LineOfSight({
+                        view,
+                        analysis
+                      });
+
+                      view.ui.add(widget, "top-right");
+                    </code>
+                  </pre>
+                </div>
+              </div>
+            </div>
+            <div class="right-column">
+              <iframe data-src="./src/samples/line-of-sight-analysis/"></iframe>
+            </div>
+          </div>
+        </section>
+
+        <!--
+          Slice
+        -->
+        <section
+          class="align-left"
+          data-slideId="slice"
+          data-background="img/2022/dev-summit/bg-3.png"
+        >
+          <h2>Slice widget</h2>
+          <div class="two-columns">
+            <div class="left-column">
+              <div data-fragment-id="add-widget" class="code-snippet">
+                <button class="play"></button>
+                <pre>
+                  <code class="lang-ts" data-trim data-line-numbers>
+                    const widget = new Slice({ view });
+
+                    view.ui.add(widget, "top-right");
+                  </code>
+                </pre>
+              </div>
+
+              <div data-fragment-id="tilt-enabled" class="code-snippet fragment play-container">
+                <button class="play"></button>
+                <pre>
+                  <code class="lang-ts" data-trim data-line-numbers>
+                    widget.viewModel.tiltEnabled = true;
+                  </code>
+                </pre>
+              </div>
+            </div>
+            <div class="right-column">
+              <iframe data-src="./src/samples/slice/index.html"></iframe>
+            </div>
+          </div>
+        </section>
+
+        <section
+          class="align-left"
+          data-slideId="slice-analysis"
+          data-background="img/2022/dev-summit/bg-3.png"
+        >
+          <h2>SliceAnalysis</h2>
+          <div class="two-columns">
+            <div class="left-column r-stack no-margin">
+              <div data-fragment-id="init-data" class="code-snippet">
+                <pre>
+                  <code class="lang-ts" data-trim data-line-numbers>
+                  const slidesAndPlanes = [{
+                    title: "Front",
+                    shape: new SlicePlane({ /* ... */ }),
+                  }, {
+                    title: "Top",
+                    shape: new SlicePlane({ /* ... */ }),
+                  }];
+                  </code>
+                </pre>
+              </div>
+
+              <div class="fragment v-stack">
+                <div data-fragment-id="add-buttons" class="code-snippet">
+                  <button class="play"></button>
+                  <pre>
+                    <code class="lang-ts" data-trim data-line-numbers>
+                    slidesAndPlanes.forEach(({ title, shape }) => {
+                      const slide = view.map.presentation.slides
+                        .find((s) => s.title.text === title);
+
+                      const button = createButton();
+
+                      button.addEventListener("click", () => {
+                        const analysis = new SliceAnalysis({ shape });
+
+                        view.analyses.removeAll();
+                        view.analyses.add(analysis);
+
+                        slide.applyTo(view);
+                      });
+                    });
+                    </code>
+                  </pre>
+                </div>
+
+                <div data-fragment-id="add-widget" class="code-snippet fragment">
+                  <button class="play"></button>
+                  <pre>
+                    <code class="lang-ts" data-trim data-line-numbers>
+                      const widget = new Slice({ view, analysis });
+                      view.ui.add(widget, "top-right");
+                    </code>
+                  </pre>
+                </div>
+              </div>
+            </div>
+            <div class="right-column">
+              <iframe data-src="./src/samples/slice-analysis/"></iframe>
+            </div>
+          </div>
+        </section>
+
+        <section
+          class="align-left"
+          data-slideId="elevation-profile"
+          data-background="img/2022/dev-summit/bg-3.png"
+        >
+          <h2>ElevationProfile widget</h2>
+          <div class="two-columns">
+            <div class="left-column">
+              <div data-fragment-id="add-widget" class="code-snippet">
+                <button class="play"></button>
+                <pre>
+                  <code class="lang-ts" data-trim data-line-numbers>
+                  const widget = new ElevationProfile({
+                    view
+                  });
+
+                  view.ui.add(widget, "top-right");
+                  </code>
+                </pre>
+              </div>
+
+              <div data-fragment-id="set-profiles" class="code-snippet fragment">
+                <button class="play"></button>
+                <pre>
+                  <code class="lang-ts" data-trim data-line-numbers>
+                  widget.profiles.push(
+                    new ElevationProfileLineView({
+                      type: "view",
+                      title: "Layers",
+                      color: "#555555",
+                      exclude: [view.map.ground],
+                    })
+                  );
+                  </code>
+                </pre>
+              </div>
+            </div>
+            <div class="right-column">
+              <iframe data-src="./src/samples/elevation-profile/"></iframe>
+            </div>
+          </div>
+        </section>
+
+        <section
+          class="align-left"
+          data-slideId="elevation-profile-csv"
+          data-background="img/2022/dev-summit/bg-3.png"
+        >
+          <h2>Exporting profile data</h2>
+          <div class="two-columns">
+            <div class="left-column">
+              <div class="code-snippet" style="font-size: 0.9em">
+                <pre>
+                  <code class="lang-ts" data-trim >
+                  async function downloadCSV() {
+                    const groundProfile = widget.profiles.getItemAt(0);
+
+                    await reactiveUtils.whenOnce(() => {
+                      return groundProfile.progress === 1;
+                    });
+
+                    exportToCSV(groundProfile.samples);
+                  }
+                  </code>
+                </pre>
+              </div>
+
+              <div
+                data-fragment-id="add-export-button"
+                class="code-snippet fragment"
+                style="font-size: 0.9em"
+              >
+                <button class="play"></button>
+                <pre>
+                  <code class="lang-ts" data-trim >
+                    function exportToCSV(samples) {
+                      const fields = ["distance", "x", "y", "elevation"];
+                      const csv = new json2csv.Parser({ fields })
+                        .parse(samples);
+
+                      const blob = new Blob([csv], {
+                        type: "text/csv;charset=utf-8"
+                      });
+                      saveAs(blob, "profile-data.csv");
+                    }
+                  </code>
+                </pre>
+              </div>
+            </div>
+            <div class="right-column">
+              <iframe data-src="./src/samples/elevation-profile/"></iframe>
+            </div>
+          </div>
+        </section>
+
+        <section
+          class="align-left"
+          data-slideId="shadow-cast"
+          data-background="img/2022/dev-summit/bg-3.png"
+        >
+          <h2>Shadow analysis</h2>
+          <div class="two-columns">
+            <div class="left-column r-stack no-margin">
+              <div
+                data-fragment-index="0"
+                data-fragment-id="add-daylight"
+                class="code-snippet fragment fade-out"
+              >
+                <button class="play"></button>
+                <pre>
+                  <code class="lang-ts" data-trim data-line-numbers>
+                    const widget = new Daylight({ view });
+
+                    view.ui.add(widget, "top-right");
+                  </code>
+                </pre>
+              </div>
+
+              <div
+                data-fragment-index="0"
+                data-fragment-id="add-shadow-cast"
+                class="code-snippet fragment"
+              >
+                <button class="play"></button>
+                <pre>
+                  <code class="lang-ts" data-trim data-line-numbers>
+                    const widget = new ShadowCast({ view });
+
+                    view.ui.add(widget, "top-right");
+
+                    // Show only accumulated shadows
+                    view.environment
+                      .lighting.directShadowsEnabled = false;
+                  </code>
+                </pre>
+              </div>
+            </div>
+            <div class="right-column">
+              <iframe data-src="./src/samples/shadow-cast/"></iframe>
+            </div>
+          </div>
+        </section>
+
+        <section class="align-left" data-background="img/2022/dev-summit/bg-3.png">
+          <h2>Documentation & Resources</h2>
+          <div style="display: flex; align-items: flex-start; font-size: 0.9em; gap: 50px">
+            <ul>
+              <li>
+                <a
+                  href="https://developers.arcgis.com/javascript/latest/api-reference/esri-widgets-DirectLineMeasurement3D.html"
+                >
+                  API Docs: DirectLineMeasurement3D
+                </a>
+              </li>
+              <li>
+                <a
+                  href="https://developers.arcgis.com/javascript/latest/api-reference/esri-widgets-AreaMeasurement3D.html"
+                >
+                  API Docs: AreaMeasurement3D
+                </a>
+              </li>
+              <li>
+                <a
+                  href="https://developers.arcgis.com/javascript/latest/api-reference/esri-widgets-LineOfSight.html"
+                >
+                  API Docs: LineOfSight
+                </a>
+              </li>
+              <li>
+                <a
+                  href="https://developers.arcgis.com/javascript/latest/api-reference/esri-widgets-Slice.html"
+                >
+                  API Docs: Slice
+                </a>
+              </li>
+              <li>
+                <a
+                  href="https://developers.arcgis.com/javascript/latest/api-reference/esri-widgets-ElevationProfile.html"
+                >
+                  API Docs: ElevationProfile
+                </a>
+              </li>
+              <li>
+                <a
+                  href="https://developers.arcgis.com/javascript/latest/api-reference/esri-widgets-ShadowCast.html"
+                >
+                  API Docs: ShadowCast
+                </a>
+              </li>
+            </ul>
+            <ul class="align-left">
+              <li>
+                <a
+                  href="https://developers.arcgis.com/javascript/latest/sample-code/widgets-measurement-3d/"
+                >
+                  Sample: Measurement in 3D
+                </a>
+              </li>
+              <li>
+                <a
+                  href="https://developers.arcgis.com/javascript/latest/sample-code/widgets-line-of-sight/"
+                >
+                  Sample: LineOfSight widget
+                </a>
+              </li>
+              <li>
+                <a
+                  href="https://developers.arcgis.com/javascript/latest/sample-code/building-scene-layer-slice/"
+                >
+                  Sample: Slice widget
+                </a>
+              </li>
+              <li>
+                <a
+                  href="https://developers.arcgis.com/javascript/latest/sample-code/widgets-elevation-profile/"
+                >
+                  Sample: ElevationProfile widget
+                </a>
+              </li>
+              <li>
+                <a
+                  href="https://developers.arcgis.com/javascript/latest/sample-code/widgets-shadow-cast/"
+                >
+                  Sample: ShadowCast widget
+                </a>
+              </li>
+            </ul>
+          </div>
+        </section>
+
+        <section class="align-left" data-background="img/2022/dev-summit/bg-4.png">
+          <div>
+            <h1>Querying and Filtering a SceneLayer</h1>
+          </div>
+        </section>
+
+        <!-- <section class="align-left" data-background="img/2022/dev-summit/bg-3.png">
+          <h2>Loading the WebScene</h2>
+
+          <div class="two-columns">
+            <div class="left-column">
+              <div class="code-snippet">
+                <pre>
+                  <code class="lang-ts" data-trim data-line-numbers>
+                    webscene = new WebScene({
+                      portalItem: {
+                        id: "a350d4d2b71a40a6a95031d25da9535f"
+                      }
+                    })
+
+                    view = new SceneView({
+                      map: webscene,
+                      container: "viewDiv"
+                    });
+                  </code>
+                </pre>
+              </div>
+            </div>
+
+            <div class="right-column">
+              <iframe
+                data-src="./src/samples/queries-and-filters/01-custom-popups/index.html"
+              ></iframe>
+            </div>
+          </div>
+        </section> -->
+
+        <section
+          class="align-left"
+          data-background="img/2022/dev-summit/bg-3.png"
+          title="filter-attribute"
+        >
+          <h2>Filtering by Attributes</h2>
+
+          <div class="two-columns">
+            <div class="left-column">
+              <div class="r-stack no-margin">
+                <div class="code-snippet">
+                  <pre>
+                  <code class="lang-ts" data-trim data-line-numbers>
+                    webscene = new WebScene({
+                      portalItem: {
+                        id: "a350d4d2b71a40a6a95031d25da9535f"
+                      }
+                    })
+
+                    view = new SceneView({
+                      map: webscene,
+                      container: "viewDiv"
+                    });
+                  </code>
+                </pre>
+                </div>
+                <div class="code-snippet fragment" data-fragment-id="class-break">
+                  <button class="play"></button>
+                  <pre>
+                  <code class="lang-ts" data-trim data-line-numbers>
+                  layer.renderer = new ClassBreaksRenderer({
+                    field: "yearCompleted",
+                    classBreakInfos: [
+                      {
+                        minValue: 1900,
+                        maxValue: 1924,
+                        symbol: { ... }
+                      },
+                      /* ... */
+                    ]
+                  });
+                  </code>
+                </pre>
+                </div>
+              </div>
+              <div class="code-snippet fragment" data-fragment-id="first-filter">
+                <button class="play"></button>
+                <pre>
+                  <code class="lang-ts" data-trim>
+                  layer.outFields = ["yearCompleted"];
+                  layerView.filter = new FeatureFilter({
+                    where: `yearCompleted > 1950`
+                  });
+                  </code>
+                </pre>
+              </div>
+              <div class="code-snippet fragment" data-fragment-id="remove-filter">
+                <button class="play"></button>
+                <pre>
+                  <code class="lang-ts" data-trim>
+                  layerView.filter = null;
+                  </code>
+                </pre>
+              </div>
+            </div>
+
+            <div class="right-column">
+              <iframe data-src="./src/samples/filter-attribute/"></iframe>
+            </div>
+          </div>
+        </section>
+
+        <section data-background="img/2022/dev-summit/bg-3.png">
+          <h2>Filters vs Queries</h2>
+
+          <img src="https://esridevsummit.github.io/DS2022-Client-Side-3D-Analysis/assets/filter_vs_query.aa45485e.png" width="800px" />
+        </section>
+
+        <section
+          class="align-left"
+          data-background="img/2022/dev-summit/bg-3.png"
+          title="query-attribute"
+        >
+          <h2>Attribute Queries</h2>
+
+          <div class="two-columns">
+            <div class="left-column">
+              <div
+                class="code-snippet fragment fade-in-then-semi-out"
+                data-fragment-id="query-attribute"
+              >
+                <button class="play"></button>
+                <pre>
+                  <code class="lang-ts" data-trim data-line-numbers>
+                  const center = new Point({ x: ..., y: ... });
+
+                  layer.outFields = ["solarAreaSuitableM2"];
+
+                  const query = layerView.createQuery();
+                  query.geometry = center;
+                  query.distance = 100;
+                  query.where =
+                    "solarAreaSuitableM2 BETWEEN 400 AND 500";
+
+                  const result =
+                    await layerView.queryFeatures(query);
+                  layerView.highlight(result.features);
+                  </code>
+                </pre>
+              </div>
+              <div class="code-snippet fragment" data-fragment-id="query-server">
+                <button class="play"></button>
+                <pre>
+                  <code class="lang-ts" data-trim data-line-numbers>
+                  const query = layer.createQuery();
+                  query.where =
+                    "solarAreaSuitableM2 BETWEEN 400 AND 500";
+                  const result = await layer.queryFeatures(query);
+                  layerView.highlight(result.features);
+                  </code>
+                </pre>
+              </div>
+              <div class="code-snippet fragment play-container" data-fragment-id="highlight-remove">
+                <button class="play"></button>
+                <pre>
+                  <code class="lang-ts" data-trim>
+                    highlightHandle.remove();
+                  </code>
+                </pre>
+              </div>
+            </div>
+
+            <div class="right-column">
+              <iframe data-src="./src/samples/query-attributes/"></iframe>
+            </div>
+          </div>
+        </section>
+
+        <section
+          class="align-left"
+          data-background="img/2022/dev-summit/bg-3.png"
+          title="query-statistic"
+        >
+          <h2>Statistic Queries</h2>
+
+          <div class="two-columns">
+            <div class="left-column">
+              <div class="code-snippet">
+                <pre>
+                  <code class="lang-ts" data-trim data-line-numbers>
+                    query.outStatistics = [
+                      new StatisticDefinition({
+                        outStatisticFieldName: "sum_area",
+                        onStatisticField: "solarAreaSuitableM2",
+                        //supports min, max, sum, std, ...
+                        statisticType: "sum"
+                      })
+                    ]);
+                  </code>
+                </pre>
+              </div>
+              <div
+                class="code-snippet fragment fade-in-then-semi-out"
+                data-fragment-id="statistic-query"
+              >
+                <button class="play"></button>
+                <pre>
+                  <code class="lang-ts" data-trim data-line-numbers>
+                    const response =
+                      await layerView.queryFeatures(query);
+
+                    output("Total area: "
+                      + response.features[0].attributes.sum_area);
+                  </code>
+                </pre>
+              </div>
+              <div class="code-snippet fragment" data-fragment-id="statistic-query-server">
+                <button class="play"></button>
+                <pre>
+                  <code class="lang-ts" data-trim data-line-numbers>
+                    const response =
+                      await layer.queryFeatures(query);
+
+                    output("Total area: "
+                      + response.features[0].attributes.sum_area);
+                  </code>
+                </pre>
+              </div>
+            </div>
+
+            <div class="right-column">
+              <iframe data-src="./src/samples/statistical-queries/"></iframe>
+            </div>
+          </div>
+        </section>
+
+        <!-- <section
+          class="align-left"
+          data-background="img/2022/dev-summit/bg-3.png"
+          title="query-statistic"
+        >
+          <h2>Statistic Queries</h2>
+
+          <div class="two-columns">
+            <div class="left-column">
+              <div class="code-snippet">
+                <button class="play" id="statistic-2"></button>
+                <pre>
+                  <code class="lang-ts" data-trim data-line-numbers>
+                    query.outStatistics = [
+                      /* ... */
+                      {
+                        outStatisticFieldName: "area_400_500",
+                        onStatisticField:
+                          `CASE WHEN (solarAreaSuitableM2 &lt; 500 AND
+                          solarAreaSuitableM2 >= 400) THEN 1 ELSE 0 END`,
+                        statisticType: "sum"
+                      },
+                      /* ... */
+                    ]);
+
+                    query.where = "usage = 'industrial'";
+
+                    layerView.queryFeatures(query).then(function(response) {
+                      chart.update(response.features[0].attributes);
+                    }).catch(console.error);
+                  </code>
+                </pre>
+              </div>
+            </div>
+
+            <div class="right-column">
+              <iframe data-src="./src/samples/queries-and-filters/05-query-statistic/"></iframe>
+            </div>
+          </div>
+        </section> -->
+
+        <section
+          class="align-left"
+          data-background="img/2022/dev-summit/bg-3.png"
+          title="spatial"
+        >
+          <h2>Spatial Filters and Queries</h2>
+
+          <div class="two-columns">
+            <div class="left-column">
+              <div class="code-snippet" data-fragment-id="sketch-widget">
+                <pre>
+                  <code class="lang-ts" data-trim data-line-numbers>
+                    const sketch = new Sketch({
+                      layer: sketchLayer,
+                      view: view
+                    });
+
+                    sketch.on("create", (event) => {
+                      layerView.filter.geometry =
+                        event.graphic.geometry
+                    });
+
+                    sketch.on("update", (event) => {
+                      layerView.filter.geometry =
+                        event.graphics[0].geometry
+                    });
+                  </code>
+                </pre>
+              </div>
+              <div class="code-snippet fragment" data-fragment-id="query-and-filter">
+                <button class="play"></button>
+                <pre>
+                  <code class="lang-ts" data-trim data-line-numbers>
+                    const response =
+                      await layerView.queryFeatures(query);
+                  </code>
+                </pre>
+              </div>
+              <div class="code-snippet fragment" data-fragment-id="query-and-filter-2">
+                <button class="play"></button>
+                <pre>
+                  <code class="lang-ts" data-trim data-line-numbers>
+                    layerView.filter = null;
+                    const query = layerView.createQuery();
+                    query.geometry = geometry; // from sketch widget
+                    query.spatialRelationship = "contains";
+                    query.where = ...
+                  </code>
+                </pre>
+              </div>
+            </div>
+
+            <div class="right-column">
+              <iframe data-src="./src/samples/filters-and-queries/"></iframe>
+            </div>
+          </div>
+        </section>
+
+        <section data-background="img/2022/dev-summit/bg-3.png">
+          <h2>Spatial Relationships</h2>
+
+          <img src="https://esridevsummit.github.io/DS2022-Client-Side-3D-Analysis/assets/spatial_relationships.908fff36.png" />
+        </section>
+
+        <section data-background="img/2022/dev-summit/bg-3.png" title="spatial">
+          <h2>San Francisco Buildings Demo</h2>
+          <iframe
+            data-src="https://ralucanicola.github.io/JSAPI_demos/sanfrancisco-buildings/"
+            style="width: 100%; height: 700px"
+          ></iframe>
+        </section>
+
+        <section class="align-left" data-background="img/2022/dev-summit/bg-3.png">
+          <h2>Documentation & Resources</h2>
+          <ul class="align-left">
+            <li>
+              <a href="https://developers.arcgis.com/javascript/latest/query-filter/"
+                >API Docs: Query and Filter</a
+              >
+            </li>
+            <li>
+              <a
+                href="https://developers.arcgis.com/javascript/latest/api-reference/esri-layers-SceneLayer.html#querying"
+                >API Docs: querying SceneLayer</a
+              >
+            </li>
+            <li>
+              <a
+                href="https://developers.arcgis.com/javascript/latest/api-reference/esri-layers-support-FeatureFilter.html"
+                >API Docs: FeatureFilter</a
+              >
+            </li>
+            <li>
+              <a href="https://ralucanicola.github.io/JSAPI_demos/sanfrancisco-buildings/"
+                >San Francisco Buildings Demo</a
+              >
+            </li>
+          </ul>
+        </section>
+
+        <!-- FEEDBACK SLIDE: -->
+        <section data-background="img/2022/dev-summit/bg-7.png">
+          <h3>Please share your feedback in the app</h3>
+          <img src="https://esridevsummit.github.io/DS2022-Client-Side-3D-Analysis/assets/feedback.5426b271.png" />
+        </section>
+
+        <!-- ESRI LOGO SLIDE: -->
+        <section data-background="img/2022/dev-summit/bg-8.png">
+          <!-- <img src="img/esri-science-logo-white.png" /> -->
+        </section>
+      </div>
+    </div>
+
+    
+  </body>
+</html>

@@ -1,0 +1,1 @@
+import"./modulepreload-polyfill.b7f2da20.js";import{i as o,o as a,M as d}from"./utils.ed0797c0.js";import{q as e}from"./vendor.c28ea743.js";const i=o(d);let t;a("add-widget",()=>{t=new e({view:i}),i.ui.add(t,"top-right")});

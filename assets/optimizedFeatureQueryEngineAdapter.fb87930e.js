@@ -1,0 +1,1 @@
+import{V as o,bM as r,as as s,at as a}from"./vendor.c28ea743.js";const b={getObjectId:t=>t.objectId,getAttributes:t=>t.attributes,getAttribute:(t,e)=>t.attributes[e],cloneWithGeometry:(t,e)=>new a(e,t.attributes,null,t.objectId),getGeometry:t=>t.geometry,getCentroid:(t,e)=>(o(t.centroid)&&(t.centroid=r(new s,t.geometry,e.hasZ,e.hasM)),t.centroid)};export{b as i};
